@@ -30,7 +30,6 @@ export default async function Page() {
         </div>
       )}
 
-      {/* เรียกใช้ Client Component สำหรับฟอร์ม */}
       <BookingForm token={session?.user?.token} />
     </main>
   );

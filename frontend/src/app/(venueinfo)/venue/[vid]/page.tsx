@@ -1,42 +1,33 @@
 import getVenue from "@/libs/getVenue";
-import Image from "next/image"; // เพิ่ม import
+import Image from "next/image"; // ถ้ามีรูป
+import { Button } from "@mui/material";
+import Link from "next/link";
 
-export default async function VenueDetailPage({ params }: { params: Promise<{ vid: string }> }) {
-  const { vid } = await params;
-  const venueDetail = await getVenue(vid);
+export default async function VenueDetailPage({ params }: { params: { vid: string } }) {
+  // 1. เรียกใช้ฟังก์ชัน getVenue โดยส่ง params.vid เข้าไป
+  const venueDetail = await getVenue(params.vid);
   const venue = venueDetail.data;
 
-  if (!venue) {
-    return (
-      <main className="text-center p-5">
-        <h1 className="text-2xl font-bold">Venue Not Found</h1>
-      </main>
-    );
-  }
-
-  // แปลงลิงก์จาก download เป็น uc (อ่านภาพ) และลบ authuser ออก
-  let imageUrl = venue.picture || "/img/bloom.jpg";
-  if (imageUrl.includes("drive.usercontent.google.com/download")) {
-    const urlParams = new URLSearchParams(imageUrl.split('?')[1]);
-    const fileId = urlParams.get("id"); // ดึงแค่ ID ออกมา (1GJPsjTt8k-2ILv6A4ER1sRr6yTG_M2f5)
-    
-    // แปลงให้เป็นโดเมน drive.google.com ตามที่สไลด์อนุญาต
-    imageUrl = `https://drive.google.com/uc?id=${fileId}`; 
-  }
-
   return (
-    <main className="text-center p-5">
-      <h1 className="text-2xl font-bold mb-2">{venue.name}</h1>
-      <div className="text-md text-gray-600 mb-4">Tel: {venue.tel}</div>
+    <main className="text-center p-10 flex flex-col items-center">
+      <h1 className="text-4xl font-bold mb-6">{venue.name}</h1>
       
-      {/* ใช้ Image ของ Next.js */}
-      <Image 
-        src={imageUrl} 
-        alt={venue.name}
-        width={800}
-        height={500} 
-        className="mx-auto w-full max-w-2xl h-auto rounded-lg shadow-lg object-cover" 
-      />
+      <div className="w-full max-w-2xl bg-white p-8 rounded-lg shadow-md flex flex-col space-y-4 text-left">
+        {/* จำลองกล่องรูปภาพ */}
+        <div className="w-full h-64 bg-slate-300 rounded-md mb-4 flex items-center justify-center text-gray-500">
+          [Venue Image]
+        </div>
+
+        <p className="text-lg"><strong>Address:</strong> {venue.address}</p>
+        <p className="text-lg"><strong>Tel:</strong> {venue.tel}</p>
+        <p className="text-lg"><strong>Open:</strong> {venue.opentime} - {venue.closetime}</p>
+
+        <Link href={`/booking?venueId=${venue._id}`}>
+          <Button variant="contained" color="primary" className="mt-6 w-full py-3 text-lg font-semibold">
+            Book This Venue
+          </Button>
+        </Link>
+      </div>
     </main>
   );
 }

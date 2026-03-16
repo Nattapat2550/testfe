@@ -13,15 +13,14 @@ export const authOptions: AuthOptions = {
       async authorize(credentials, req) {
         if (!credentials) return null;
         try {
-          const user = await userLogIn(credentials.email, credentials.password);
-          if (user && user.success) {
-            // ส่งข้อมูลกลับไปพร้อม token
+          const res = await userLogIn(credentials.email, credentials.password);
+          if (res && res.success) {
             return {
-              id: user.user?._id,
-              name: user.user?.name,
-              email: user.user?.email,
-              role: user.user?.role,
-              token: user.token, // สำคัญมาก: ต้องมี token เพื่อใช้ยิง API อื่นๆ
+              _id: res.user?._id,
+              name: res.user?.name,
+              email: res.user?.email,
+              role: res.user?.role,
+              token: res.token,
             } as any;
           }
         } catch (error) {
@@ -45,7 +44,7 @@ export const authOptions: AuthOptions = {
         name: token.name,
         email: token.email,
         role: token.role,
-        token: token.token, // นำ token ไปใช้ต่อใน Client/Server
+        token: token.token,
       } as any;
       return session;
     },

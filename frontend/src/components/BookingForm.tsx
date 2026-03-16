@@ -6,8 +6,11 @@ import { useRouter } from 'next/navigation';
 
 export default function BookingForm({ token }: { token?: string }) {
   const router = useRouter();
-  const [venue, setVenue] = useState('Bloom');
+  const [venue, setVenue] = useState('65184657964561dd942a33a6'); // ต้องเปลี่ยนเป็น ID จริงจาก MongoDB ของคุณ
   const [date, setDate] = useState<string | null>(null);
+  
+  // สมมติ URL ของ Backend ถ้าเอาขึ้น Vercel แล้วให้เปลี่ยนตรงนี้ หรือใช้ process.env.NEXT_PUBLIC_BACKEND_URL
+  const backendUrl = "https://a08-venue-explorer-backend.vercel.app";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -15,27 +18,27 @@ export default function BookingForm({ token }: { token?: string }) {
       alert("Please login first!");
       return;
     }
-
-    // สมมติว่า Bloom มี ID เป็น restaurantId ใน Backend ของคุณ
-    // คุณต้องเปลี่ยน venue ให้ตรงกับ ObjectId ของ Restaurant ใน MongoDB ของคุณ
-    const restaurantId = venue === "Bloom" ? "YOUR_RESTAURANT_ID" : "OTHER_ID";
+    if (!date) {
+      alert("Please select a date!");
+      return;
+    }
 
     try {
-      const res = await fetch("https://a08-venue-explorer-backend.vercel.app/api/v1/restaurants/${restaurantId}/reservations", {
+      const res = await fetch(`${backendUrl}/api/v1/restaurants/${venue}/reservations`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`
         },
         body: JSON.stringify({
-          date: date, // วันที่จาก Component DateReserve
-          time: "10:00" // กำหนดเวลาหรือเพิ่ม Field เวลาก็ได้
+          date: date,
+          time: "10:00" // สามารถเพิ่ม TimePicker ในอนาคตได้
         })
       });
 
       if (res.ok) {
         alert("Booking created successfully!");
-        router.push("/reservations"); // Redirect ไปหน้าดูการจอง
+        router.push("/reservations");
       } else {
         const error = await res.json();
         alert(`Error: ${error.message}`);
@@ -57,13 +60,13 @@ export default function BookingForm({ token }: { token?: string }) {
         onChange={(e) => setVenue(e.target.value)}
         fullWidth
       >
-        <MenuItem value="Bloom">The Bloom Pavilion</MenuItem>
-        <MenuItem value="Spark">Spark Space</MenuItem>
-        <MenuItem value="GrandTable">The Grand Table</MenuItem>
+        {/* เปลี่ยน Value ให้ตรงกับ _id ของ Restaurant ใน Database คุณ */}
+        <MenuItem value="65184657964561dd942a33a6">The Bloom Pavilion</MenuItem>
+        <MenuItem value="65184756964561dd942a33ab">Spark Space</MenuItem>
+        <MenuItem value="65184756964561dd942a33ac">The Grand Table</MenuItem>
       </Select>
       
       <div className="pt-2">
-        {/* ต้องปรับ DateReserve ให้สามารถส่งค่า Date กลับมาได้ด้วย (passing props onChange) */}
         <DateReserve onDateChange={(newDate: string) => setDate(newDate)} />
       </div>
       

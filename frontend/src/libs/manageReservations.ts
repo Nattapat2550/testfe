@@ -1,8 +1,8 @@
-const BACKEND_URL = "https://a08-venue-explorer-backend.vercel.app/api/v1";
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "https://a08-venue-explorer-backend.vercel.app";
 
-// 5. แสดง Booking ที่สร้างไว้ (User View Own Booking / Admin View Any)
+// ดึงการจองทั้งหมด (ถ้า user ธรรมดาจะได้แค่ของตัวเอง, ถ้า admin จะได้ทั้งหมด)
 export async function getReservations(token: string) {
-  const response = await fetch(`${BACKEND_URL}/reservations`, {
+  const response = await fetch(`${backendUrl}/api/v1/reservations`, {
     method: "GET",
     headers: { Authorization: `Bearer ${token}` },
   });
@@ -10,9 +10,9 @@ export async function getReservations(token: string) {
   return await response.json();
 }
 
-// 6 & 11. อัพเดท Booking (User Edit Own / Admin Edit Any)
+// อัปเดตข้อมูลการจอง
 export async function updateReservation(token: string, reservationId: string, data: any) {
-  const response = await fetch(`${BACKEND_URL}/reservations/${reservationId}`, {
+  const response = await fetch(`${backendUrl}/api/v1/reservations/${reservationId}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -24,9 +24,9 @@ export async function updateReservation(token: string, reservationId: string, da
   return await response.json();
 }
 
-// 7 & 12. ลบ Booking (User Delete Own / Admin Delete Any)
+// ลบการจอง
 export async function deleteReservation(token: string, reservationId: string) {
-  const response = await fetch(`${BACKEND_URL}/reservations/${reservationId}`, {
+  const response = await fetch(`${backendUrl}/api/v1/reservations/${reservationId}`, {
     method: "DELETE",
     headers: { Authorization: `Bearer ${token}` },
   });
