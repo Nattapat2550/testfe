@@ -16,7 +16,7 @@ export const authOptions: AuthOptions = {
           const user = await userLogIn(credentials.email, credentials.password);
           if (user) {
             return {
-              id: user._id, // เพิ่มบรรทัดนี้เพื่อแก้ Error 2322
+              id: user._id,
               _id: user._id,
               name: user.name,
               email: user.email,
@@ -26,7 +26,9 @@ export const authOptions: AuthOptions = {
           }
           return null;
         } catch (error) {
-          return null;
+          // เพิ่มบรรทัดนี้เพื่อปริ้นท์ Error ออกมาใน Vercel Logs เวลาพัง
+          console.error("🔥 Login Error:", error); 
+          return null; // NextAuth บังคับให้ return null หากพัง
         }
       },
     }),

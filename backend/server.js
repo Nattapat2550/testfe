@@ -28,7 +28,10 @@ const limiter = rateLimit({
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors());
+app.use(cors({
+    origin: 'https://testfe-fe.vercel.app', 
+    credentials: true
+}));
 app.use(mongoSanitize()); 
 app.use(helmet());        
 app.use(xss());           

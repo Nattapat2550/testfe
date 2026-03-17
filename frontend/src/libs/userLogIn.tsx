@@ -7,7 +7,10 @@ export default async function userLogIn(email: string, password: string) {
     body: JSON.stringify({ email, password }),
   });
   
-  if (!response.ok) throw new Error("Failed to log in");
+  if (!response.ok) {
+     const errData = await response.json().catch(() => ({}));
+     throw new Error(`Failed to log in: ${response.status} - ${errData.message || 'Unknown error'}`);
+  }
   const data = await response.json();
   
   const profileRes = await fetch(`${BACKEND_URL}/api/v1/auth/me`, {
