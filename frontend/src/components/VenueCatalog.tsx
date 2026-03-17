@@ -1,22 +1,21 @@
-import Link from 'next/link';
-import { Card, CardContent, Typography } from '@mui/material';
+import Link from "next/link";
+import Card from "./Card"; // นำเข้า Card component
 
 export default function VenueCatalog({ venuesJson }: { venuesJson: any }) {
-  if (!venuesJson || !venuesJson.data) return null;
-
+  // venuesJson.data คืออาร์เรย์ของ venues ที่มาจาก API
   return (
-    <div className="flex flex-wrap justify-center gap-6 p-5">
+    <div className="flex flex-row flex-wrap justify-center gap-4">
       {venuesJson.data.map((venue: any) => (
-        <Link href={`/venue/${venue.id}`} key={venue.id} className="w-full sm:w-[45%] md:w-[30%]">
-          <Card className="hover:shadow-xl transition-shadow cursor-pointer h-full">
-            {/* สมมติว่ามีรูป ถ้าไม่มีใช้กล่องสีเทาแทน */}
-            <div className="h-48 bg-slate-300 w-full rounded-t-md"></div>
-            <CardContent>
-              <Typography variant="h6" component="div" className="font-bold">{venue.name}</Typography>
-              <Typography variant="body2" color="text.secondary">{venue.address}</Typography>
-              <Typography variant="body2" className="mt-2 text-blue-600">Tel: {venue.tel}</Typography>
-            </CardContent>
-          </Card>
+        <Link 
+          href={`/venue/${venue.id}`} 
+          key={venue.id} 
+          className="w-full sm:w-[45%] md:w-[30%] block"
+        >
+          {/* เรียกใช้ Card แทนการเขียน img ตรงๆ */}
+          <Card 
+            venueName={venue.name} 
+            imgSrc={venue.picture || "/img/bloom.jpg"} 
+          />
         </Link>
       ))}
     </div>

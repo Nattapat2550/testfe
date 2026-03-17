@@ -28,7 +28,8 @@ export default async function TopMenu() {
 
       {/* เมนูและโลโก้ฝั่งขวา */}
       <div className="flex items-center gap-8">
-        <TopMenuItem title="Booking" pageRef="/booking" />
+        <TopMenuItem title='Booking' pageRef='/booking' />
+        <TopMenuItem title='My Booking' pageRef='/mybooking' />
         <img src="/img/logo.png" alt="logo" className="h-10 w-auto" />
       </div>
 

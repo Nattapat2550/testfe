@@ -1,36 +1,90 @@
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
-import getUserProfile from '@/libs/getUserProfile';
-import BookingForm from '@/components/BookingForm';
+// src/app/booking/page.tsx
+"use client";
 
-export default async function Page() {
-  const session = await getServerSession(authOptions);
-  let profile = null;
+import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/redux/store";
+import { addBooking } from "@/redux/features/bookSlice";
+import { BookingItem } from "../../../interface";
+import { TextField, Select, MenuItem, Button, FormControl, InputLabel } from "@mui/material";
+import { DatePicker } from "@mui/x-date-pickers";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs, { Dayjs } from "dayjs";
 
-  if (session && session.user?.token) {
-    try {
-      const res = await getUserProfile(session.user.token);
-      profile = res.data;
-    } catch (error) {
-      console.error(error);
+export default function BookingPage() {
+  const dispatch = useDispatch<AppDispatch>();
+
+  const [nameLastname, setNameLastname] = useState("");
+  const [tel, setTel] = useState("");
+  const [venue, setVenue] = useState("Bloom");
+  const [bookDate, setBookDate] = useState<Dayjs | null>(null);
+
+  const handleBookVenue = () => {
+    if (nameLastname && tel && venue && bookDate) {
+      const item: BookingItem = {
+        nameLastname: nameLastname,
+        tel: tel,
+        venue: venue,
+        bookDate: dayjs(bookDate).format("YYYY/MM/DD"),
+      };
+      dispatch(addBooking(item));
     }
-  }
+  };
 
   return (
-    <main className="w-full flex flex-col items-center p-10">
-      <h1 className="text-4xl font-bold text-gray-800 mb-8">Venue Booking</h1>
-      
-      {profile && (
-        <div className="w-full max-w-md bg-gray-200 p-6 rounded-lg shadow-sm flex flex-col space-y-2 mb-8 text-gray-800">
-          <h2 className="text-xl font-bold mb-2">User Profile</h2>
-          <p><strong>Name:</strong> {profile.name}</p>
-          <p><strong>Email:</strong> {profile.email}</p>
-          <p><strong>Tel.:</strong> {profile.tel}</p>
-          <p><strong>Member Since:</strong> {new Date(profile.createdAt).toLocaleDateString()}</p>
-        </div>
-      )}
+    <main className="w-full flex flex-col items-center space-y-6 mt-10">
+      <div className="text-2xl font-bold">Venue Booking</div>
 
-      <BookingForm token={session?.user?.token} />
+      <div className="w-full max-w-sm space-y-4 flex flex-col">
+        <TextField
+          name="Name-Lastname"
+          label="Name-Lastname"
+          variant="outlined"
+          value={nameLastname}
+          onChange={(e) => setNameLastname(e.target.value)}
+        />
+
+        <TextField
+          name="Contact-Number"
+          label="Contact-Number"
+          variant="outlined"
+          value={tel}
+          onChange={(e) => setTel(e.target.value)}
+        />
+
+        <FormControl fullWidth>
+          <InputLabel>Venue</InputLabel>
+          <Select
+            id="venue"
+            name="venue"
+            value={venue}
+            label="Venue"
+            onChange={(e) => setVenue(e.target.value)}
+          >
+            <MenuItem value="Bloom">The Bloom Pavilion</MenuItem>
+            <MenuItem value="Spark">Spark Space</MenuItem>
+            <MenuItem value="GrandTable">The Grand Table</MenuItem>
+          </Select>
+        </FormControl>
+
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <DatePicker
+            label="Book Date"
+            value={bookDate}
+            onChange={(newValue) => setBookDate(newValue)}
+          />
+        </LocalizationProvider>
+
+        <Button
+          name="Book Venue"
+          variant="contained"
+          onClick={handleBookVenue}
+          sx={{ mt: 2 }}
+        >
+          Book Venue
+        </Button>
+      </div>
     </main>
   );
 }

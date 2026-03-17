@@ -12,40 +12,24 @@ export const authOptions: AuthOptions = {
       },
       async authorize(credentials, req) {
         if (!credentials) return null;
-        try {
-          const res = await userLogIn(credentials.email, credentials.password);
-          if (res && res.success) {
-            return {
-              _id: res.user?._id,
-              name: res.user?.name,
-              email: res.user?.email,
-              role: res.user?.role,
-              token: res.token,
-            } as any;
-          }
-        } catch (error) {
-          console.error("Login Error:", error);
+        
+        const user = await userLogIn(credentials.email, credentials.password);
+        
+        if (user) {
+          return user;
+        } else {
+          return null;
         }
-        return null;
       },
     }),
   ],
   session: { strategy: "jwt" },
   callbacks: {
     async jwt({ token, user }) {
-      if (user) {
-        token.role = user.role;
-        token.token = user.token;
-      }
-      return token;
+      return { ...token, ...user };
     },
-    async session({ session, token }) {
-      session.user = {
-        name: token.name,
-        email: token.email,
-        role: token.role,
-        token: token.token,
-      } as any;
+    async session({ session, token, user }) {
+      session.user = token as any;
       return session;
     },
   },
