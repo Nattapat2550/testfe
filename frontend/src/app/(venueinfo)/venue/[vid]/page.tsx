@@ -1,42 +1,24 @@
 import getVenue from "@/libs/getVenue";
-import Image from "next/image"; // เพิ่ม import
+import BookingForm from "@/components/BookingForm";
 
-export default async function VenueDetailPage({ params }: { params: Promise<{ vid: string }> }) {
-  const { vid } = await params;
-  const venueDetail = await getVenue(vid);
+export default async function VenueDetailPage({ params }: { params: { vid: string } }) {
+  const venueDetail = await getVenue(params.vid);
   const venue = venueDetail.data;
 
-  if (!venue) {
-    return (
-      <main className="text-center p-5">
-        <h1 className="text-2xl font-bold">Venue Not Found</h1>
-      </main>
-    );
-  }
-
-  // แปลงลิงก์จาก download เป็น uc (อ่านภาพ) และลบ authuser ออก
-  let imageUrl = venue.picture || "/img/bloom.jpg";
-  if (imageUrl.includes("drive.usercontent.google.com/download")) {
-    const urlParams = new URLSearchParams(imageUrl.split('?')[1]);
-    const fileId = urlParams.get("id"); // ดึงแค่ ID ออกมา (1GJPsjTt8k-2ILv6A4ER1sRr6yTG_M2f5)
-    
-    // แปลงให้เป็นโดเมน drive.google.com ตามที่สไลด์อนุญาต
-    imageUrl = `https://drive.google.com/uc?id=${fileId}`; 
-  }
-
   return (
-    <main className="text-center p-5">
-      <h1 className="text-2xl font-bold mb-2">{venue.name}</h1>
-      <div className="text-md text-gray-600 mb-4">Tel: {venue.tel}</div>
-      
-      {/* ใช้ Image ของ Next.js */}
-      <Image 
-        src={imageUrl} 
-        alt={venue.name}
-        width={800}
-        height={500} 
-        className="mx-auto w-full max-w-2xl h-auto rounded-lg shadow-lg object-cover" 
-      />
+    <main className="p-6 md:p-12 max-w-6xl mx-auto flex flex-col lg:flex-row gap-12 mt-4">
+      <div className="flex-1">
+        <span className="bg-blue-100 text-blue-700 font-bold px-3 py-1 rounded-full text-xs tracking-wider uppercase mb-4 inline-block">Restaurant Detail</span>
+        <h1 className="text-4xl md:text-5xl font-black text-gray-900 mb-6 leading-tight">{venue.name}</h1>
+        <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 text-gray-700 space-y-5 text-lg">
+          <div className="flex items-start gap-4"><span className="text-2xl">📍</span><p><strong>Address:</strong><br/>{venue.address}</p></div>
+          <div className="flex items-start gap-4"><span className="text-2xl">📞</span><p><strong>Telephone:</strong><br/>{venue.tel}</p></div>
+          <div className="flex items-start gap-4"><span className="text-2xl">🕒</span><p><strong>Operating Hours:</strong><br/>{venue.opentime} - {venue.closetime}</p></div>
+        </div>
+      </div>
+      <div className="flex-1 lg:max-w-md w-full">
+        <BookingForm restaurantId={venue._id} />
+      </div>
     </main>
   );
 }

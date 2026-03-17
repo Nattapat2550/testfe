@@ -1,18 +1,27 @@
-export default async function userLogIn(userEmail: string, userPassword: string) {
-    const response = await fetch("https://a08-venue-explorer-backend.vercel.app/api/v1/auth/login", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            email: userEmail,
-            password: userPassword,
-        }),
-    });
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
 
-    if (!response.ok) {
-        throw new Error("Failed to log in");
-    }
+export default async function userLogIn(email: string, password: string) {
+  const response = await fetch(`${BACKEND_URL}/api/v1/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+  
+  if (!response.ok) throw new Error("Failed to log in");
+  const data = await response.json();
+  
+  const profileRes = await fetch(`${BACKEND_URL}/api/v1/auth/me`, {
+    headers: { Authorization: `Bearer ${data.token}` }
+  });
+  
+  if (!profileRes.ok) throw new Error("Failed to get profile");
+  const profileData = await profileRes.json();
 
-    return await response.json();
+  return {
+    _id: profileData.data._id,
+    name: profileData.data.name,
+    email: profileData.data.email,
+    role: profileData.data.role,
+    token: data.token,
+  };
 }

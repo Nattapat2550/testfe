@@ -7,17 +7,25 @@ export const authOptions: AuthOptions = {
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        email: { label: "Email", type: "email", placeholder: "email" },
+        email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials, req) {
+      async authorize(credentials) {
         if (!credentials) return null;
-        
-        const user = await userLogIn(credentials.email, credentials.password);
-        
-        if (user) {
-          return user;
-        } else {
+        try {
+          const user = await userLogIn(credentials.email, credentials.password);
+          if (user) {
+            return {
+              id: user._id, // เพิ่มบรรทัดนี้เพื่อแก้ Error 2322
+              _id: user._id,
+              name: user.name,
+              email: user.email,
+              role: user.role,
+              token: user.token,
+            };
+          }
+          return null;
+        } catch (error) {
           return null;
         }
       },
@@ -26,11 +34,23 @@ export const authOptions: AuthOptions = {
   session: { strategy: "jwt" },
   callbacks: {
     async jwt({ token, user }) {
-      return { ...token, ...user };
+      if (user) {
+        token._id = user._id;
+        token.role = user.role;
+        token.token = user.token;
+      }
+      return token;
     },
-    async session({ session, token, user }) {
-      session.user = token as any;
+    async session({ session, token }) {
+      session.user = {
+        _id: token._id as string,
+        name: token.name as string,
+        email: token.email as string,
+        role: token.role as string,
+        token: token.token as string,
+      };
       return session;
     },
   },
+  pages: { signIn: '/login' }
 };
