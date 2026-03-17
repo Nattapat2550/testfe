@@ -16,10 +16,13 @@ export default withAuth(
       // อนุญาตให้ผ่าน Middleware ได้ถ้ามี token (Log-in แล้ว)
       authorized: ({ token }) => !!token,
     },
+    // เพิ่มบรรทัดนี้ เพื่อบอกว่าถ้าไม่มีสิทธิ์ ให้เด้งไปที่หน้า /login ของเรา
+    pages: {
+      signIn: "/login",
+    },
   }
 );
 
-// กำหนด Path ที่ต้องการป้องกัน (ต้อง Log-in ก่อนถึงจะเข้าได้)
 export const config = {
   matcher: [
     "/mybooking/:path*",
