@@ -1,15 +1,9 @@
 @import "tailwindcss";
 
+/* บังคับใช้สีสว่าง (Light Mode) เสมอ เพื่อให้เว็บดูสะอาดตา */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #fafafa; /* สีขาวอมเทานิดๆ ให้ดูแพง */
+  --foreground: #171717; /* สีตัวอักษรหลัก */
 }
 
 body {
