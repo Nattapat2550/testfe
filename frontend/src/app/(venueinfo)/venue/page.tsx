@@ -1,56 +1,74 @@
-import getVenues from "@/libs/getVenues";
+import getVenue from "@/libs/getVenue";
+import BookingForm from "@/components/BookingForm";
 import Link from "next/link";
 
-export default async function VenuePage() {
-  let venues;
-  
-  // ใช้ Try-Catch ป้องกันกรณี Backend พังหรือดึงข้อมูลไม่ได้
+// รองรับทั้งแบบ Params ธรรมดาและ Promise (สำหรับ Next.js เวอร์ชั่นใหม่)
+export default async function VenueDetailPage({ params }: { params: any }) {
+  let venueDetail;
+  let venue;
+
   try {
-    venues = await getVenues();
+    // 1. ดึงค่า ID ของร้านอาหารจาก URL
+    const resolvedParams = await params;
+    const vid = resolvedParams.vid;
+
+    // 2. พยายามดึงข้อมูลจาก Backend
+    venueDetail = await getVenue(vid);
+    venue = venueDetail?.data;
+
   } catch (error) {
+    // 3. ถ้าดึงข้อมูลไม่ได้ (Backend พัง หรือ API ขัดข้อง) ให้แสดงหน้านี้แทนหน้าเว็บพัง
     return (
       <main className="p-10 text-center min-h-[60vh] flex flex-col justify-center items-center">
-        <h1 className="text-2xl font-bold text-red-500 mb-2">Error Loading Restaurants</h1>
-        <p className="text-gray-500">ไม่สามารถเชื่อมต่อกับฐานข้อมูลได้ กรุณาลองใหม่อีกครั้ง</p>
+        <h1 className="text-2xl font-bold text-red-500 mb-2">Error Loading Restaurant</h1>
+        <p className="text-gray-500 mb-6">ไม่สามารถเชื่อมต่อกับฐานข้อมูลเพื่อดึงรายละเอียดร้านนี้ได้</p>
+        <Link href="/venue" className="bg-gray-900 text-white px-6 py-3 rounded-full hover:bg-gray-800 transition">
+          กลับไปหน้ารวมร้านอาหาร
+        </Link>
       </main>
     );
   }
 
-  // ป้องกันกรณี Backend ส่งข้อมูลมาผิดรูปแบบ (ไม่มี properties: data)
-  if (!venues || !venues.data || !Array.isArray(venues.data)) {
+  // 4. ถ้าดึงข้อมูลสำเร็จ แต่ไม่มีร้านนี้ในฐานข้อมูล (อาจถูกลบไปแล้ว)
+  if (!venue) {
     return (
       <main className="p-10 text-center min-h-[60vh] flex flex-col justify-center items-center">
-         <h1 className="text-2xl font-bold text-gray-700">No Restaurants Available</h1>
-         <p className="text-gray-500">ยังไม่มีร้านอาหารในระบบขณะนี้</p>
+        <h1 className="text-2xl font-bold text-gray-700 mb-2">Restaurant Not Found</h1>
+        <p className="text-gray-500 mb-6">ไม่พบข้อมูลร้านอาหารที่คุณต้องการ</p>
+        <Link href="/venue" className="bg-gray-900 text-white px-6 py-3 rounded-full hover:bg-gray-800 transition">
+          กลับไปหน้ารวมร้านอาหาร
+        </Link>
       </main>
     );
   }
 
+  // 5. ถ้าข้อมูลถูกต้องสมบูรณ์ ให้แสดงหน้ารายละเอียดและฟอร์มจอง
   return (
-    <main className="p-6 md:p-12 max-w-7xl mx-auto">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-extrabold text-gray-900 mb-4">Select a Restaurant</h1>
-        <p className="text-gray-500">Explore our curated list of top dining spots</p>
+    <main className="p-6 md:p-12 max-w-6xl mx-auto flex flex-col lg:flex-row gap-12 mt-4">
+      <div className="flex-1">
+        <span className="bg-blue-100 text-blue-700 font-bold px-3 py-1 rounded-full text-xs tracking-wider uppercase mb-4 inline-block">
+          Restaurant Detail
+        </span>
+        <h1 className="text-4xl md:text-5xl font-black text-gray-900 mb-6 leading-tight">{venue.name}</h1>
+        <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 text-gray-700 space-y-5 text-lg">
+          <div className="flex items-start gap-4">
+            <span className="text-2xl">📍</span>
+            <p><strong>Address:</strong><br/>{venue.address}</p>
+          </div>
+          <div className="flex items-start gap-4">
+            <span className="text-2xl">📞</span>
+            <p><strong>Telephone:</strong><br/>{venue.tel}</p>
+          </div>
+          <div className="flex items-start gap-4">
+            <span className="text-2xl">🕒</span>
+            <p><strong>Operating Hours:</strong><br/>{venue.opentime} - {venue.closetime}</p>
+          </div>
+        </div>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {/* เริ่มต้นการ Map ข้อมูล */}
-        {venues.data.map((venue: any) => (
-          <Link 
-            href={`/venue/${venue._id}`} 
-            key={venue._id} 
-            className="bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 p-8 border border-gray-100 flex flex-col group"
-          >
-            <div className="grow">
-                <h2 className="text-2xl font-bold text-gray-800 group-hover:text-blue-600 transition">{venue.name}</h2>
-                <p className="text-gray-500 mt-3 text-sm leading-relaxed line-clamp-2">📍 {venue.address}</p>
-            </div>
-            <div className="mt-6 pt-6 border-t border-gray-100 flex flex-col gap-2 text-sm font-medium text-gray-600">
-              <span className="bg-gray-50 p-2 rounded-lg">📞 {venue.tel}</span>
-              <span className="bg-gray-50 p-2 rounded-lg">🕒 {venue.opentime} - {venue.closetime}</span>
-            </div>
-          </Link>
-        ))}
+      {/* ส่ง _id ของร้านไปให้ BookingForm เพื่อทำการจอง */}
+      <div className="flex-1 lg:max-w-md w-full">
+        <BookingForm restaurantId={venue._id} />
       </div>
     </main>
   );
