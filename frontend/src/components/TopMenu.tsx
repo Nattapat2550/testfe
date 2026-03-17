@@ -32,7 +32,7 @@ export default function TopMenu() {
         ) : (
           <>
             <Link href="/login" className="text-gray-600 hover:text-primary-600 transition">Log In</Link>
-            <Link href="/register" className="bg-primary-600 text-white px-5 py-2 rounded-full hover:bg-primary-700 transition shadow-md shadow-primary-500/30">
+            <Link href="/register" className="bg-primary-600 text-blue-600 px-5 py-2 rounded-full hover:bg-primary-700 transition shadow-md shadow-primary-500/30">
               Register
             </Link>
           </>
