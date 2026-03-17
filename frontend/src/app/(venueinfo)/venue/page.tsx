@@ -13,7 +13,7 @@ export default async function VenuePage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {venues.data.map((venue: any) => (
           <Link href={`/venue/${venue._id}`} key={venue._id} className="bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 p-8 border border-gray-100 flex flex-col group">
-            <div className="flex-grow">
+            <div className="grow">
                 <h2 className="text-2xl font-bold text-gray-800 group-hover:text-blue-600 transition">{venue.name}</h2>
                 <p className="text-gray-500 mt-3 text-sm leading-relaxed line-clamp-2">📍 {venue.address}</p>
             </div>

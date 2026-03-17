@@ -1,6 +1,6 @@
 // src/redux/store.ts
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
-import bookSlice from "./features/bookSlice";
+import bookReducer from "./features/bookSlice"; // Import reducer ที่ส่งออกแบบ default
 import { useSelector, TypedUseSelectorHook } from "react-redux";
 import { persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage"; // ใช้ localStorage ของเว็บบราว์เซอร์
@@ -11,7 +11,7 @@ const persistConfig = {
 };
 
 const rootReducer = combineReducers({
-  bookSlice,
+  bookSlice: bookReducer, // นำ reducer มาใส่ที่นี่
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
