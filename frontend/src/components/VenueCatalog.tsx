@@ -1,17 +1,18 @@
 import Link from "next/link";
-import Card from "./Card"; // นำเข้า Card component
+import Card from "./Card";
 
 export default function VenueCatalog({ venuesJson }: { venuesJson: any }) {
-  // venuesJson.data คืออาร์เรย์ของ venues ที่มาจาก API
+  if (!venuesJson || !venuesJson.data) return null;
+
   return (
-    <div className="flex flex-row flex-wrap justify-center gap-4">
+    <div className="flex flex-row flex-wrap justify-center gap-6">
       {venuesJson.data.map((venue: any) => (
         <Link 
-          href={`/venue/${venue.id}`} 
-          key={venue.id} 
-          className="w-full sm:w-[45%] md:w-[30%] block"
+          // ใช้ venue.id หรือ venue._id เพื่อให้ชัวร์ว่าตรงกับฐานข้อมูล
+          href={`/venue/${venue.id || venue._id}`} 
+          key={venue.id || venue._id} 
+          className="w-full sm:w-[45%] md:w-[30%] block hover:scale-105 transition-transform duration-300"
         >
-          {/* เรียกใช้ Card แทนการเขียน img ตรงๆ */}
           <Card 
             venueName={venue.name} 
             imgSrc={venue.picture || "/img/bloom.jpg"} 
