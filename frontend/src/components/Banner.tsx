@@ -1,49 +1,61 @@
 'use client'
-import styles from './banner.module.css';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import Image from 'next/image';
 
 export default function Banner() {
   const router = useRouter();
   const { data: session } = useSession();
   const [index, setIndex] = useState(0);
+  
+  // ใช้รูปภาพร้านอาหารที่มีในโฟลเดอร์ public/img ของคุณ
   const images = [
-    '/img/cover.jpg',
-    '/img/cover2.jpg',
-    '/img/cover3.jpg',
-    '/img/cover4.jpg'
+    '/img/grandtable.jpg',
+    '/img/bloom.jpg',
+    '/img/sparkspace.jpg',
+    '/img/cover.jpg'
   ];
 
   return (
-    <div className={styles.banner} onClick={() => setIndex((index + 1) % images.length)}>
-      <img 
+    <div 
+      className="relative w-full h-[85vh] cursor-pointer overflow-hidden group" 
+      onClick={() => setIndex((index + 1) % images.length)}
+    >
+      <Image 
         src={images[index]} 
-        alt="Event Venue" 
-        className={styles.image} 
+        alt="Restaurant Venue" 
+        fill
+        className="object-cover transition-opacity duration-700 ease-in-out" 
+        priority
       />
-      <div className={styles.overlay}>
-        <h1 className={styles.title}>where every event finds its venue</h1>
-        <p className={styles.subtitle}>
-          Finding the perfect venue has never been easier. Whether it's a wedding, corporate event, or private party, we connecting people to the perfect place.
+      
+      {/* Overlay พื้นหลังดำจางๆ เพื่อให้ตัวหนังสืออ่านง่าย */}
+      <div className="absolute inset-0 bg-black/40 flex flex-col justify-center items-center text-center p-6 transition-all duration-300">
+        <h1 className="text-5xl md:text-7xl font-bold text-white mb-4 drop-shadow-xl tracking-tight">
+          Savor the <span className="text-primary-500">Perfect Moment</span>
+        </h1>
+        <p className="text-lg md:text-2xl text-gray-100 max-w-2xl drop-shadow-md font-light">
+          Discover top-rated restaurants, exquisite menus, and secure your table for an unforgettable dining experience.
         </p>
       </div>
 
       {/* แสดงชื่อผู้ใช้ถ้า Log in แล้ว */}
       {session && (
-         <div className="absolute top-6 right-6 z-30 font-semibold text-xl text-white">
-           Welcome {session.user?.name}
+         <div className="absolute top-8 right-8 z-30 font-medium text-white bg-black/30 backdrop-blur-md px-5 py-2 rounded-full border border-white/20 shadow-lg">
+           Welcome, {session.user?.name}
          </div>
       )}
 
+      {/* ปุ่ม Call to Action */}
       <button 
-        className="absolute bottom-6 right-6 bg-white text-cyan-600 border border-cyan-600 font-semibold py-2 px-4 rounded hover:bg-cyan-600 hover:text-white hover:border-transparent z-30"
+        className="absolute bottom-12 right-12 bg-primary-600 text-white font-bold py-3 px-8 rounded-full hover:bg-primary-700 hover:shadow-xl hover:shadow-primary-600/30 hover:-translate-y-1 transition-all duration-300 z-30"
         onClick={(e) => {
           e.stopPropagation(); 
           router.push('/venue');
         }}
       >
-        Select Venue
+        Find a Table
       </button>
     </div>
   );
