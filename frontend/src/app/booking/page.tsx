@@ -2,88 +2,45 @@
 "use client";
 
 import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/redux/store";
-import { addBooking } from "@/redux/features/bookSlice";
-import { BookingItem } from "../../../interface";
-import { TextField, Select, MenuItem, Button, FormControl, InputLabel } from "@mui/material";
-import { DatePicker } from "@mui/x-date-pickers";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import dayjs, { Dayjs } from "dayjs";
+import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+import BookingForm from "@/components/BookingForm"; // ดึง Component ที่ยิง API มาใช้
 
 export default function BookingPage() {
-  const dispatch = useDispatch<AppDispatch>();
-
-  const [nameLastname, setNameLastname] = useState("");
-  const [tel, setTel] = useState("");
-  const [venue, setVenue] = useState("Bloom");
-  const [bookDate, setBookDate] = useState<Dayjs | null>(null);
-
-  const handleBookVenue = () => {
-    if (nameLastname && tel && venue && bookDate) {
-      const item: BookingItem = {
-        nameLastname: nameLastname,
-        tel: tel,
-        venue: venue,
-        bookDate: dayjs(bookDate).format("YYYY/MM/DD"),
-      };
-      dispatch(addBooking(item));
-    }
-  };
+  // สมมติฐานว่า Backend ของคุณคือ Restaurant (ตามไฟล์ routes/restaurants.js)
+  // แต่ถ้า Backend ของคุณเป็น Venue ให้เปลี่ยนรายชื่อให้สอดคล้องกัน
+  const [selectedVenueId, setSelectedVenueId] = useState<string>("");
 
   return (
-    <main className="w-full flex flex-col items-center space-y-6 mt-10">
-      <div className="text-2xl font-bold">Venue Booking</div>
+    <main className="w-full flex flex-col items-center space-y-6 mt-10 mb-10 px-4">
+      <div className="text-2xl font-bold text-gray-800">Venue Booking</div>
 
-      <div className="w-full max-w-sm space-y-4 flex flex-col">
-        <TextField
-          name="Name-Lastname"
-          label="Name-Lastname"
-          variant="outlined"
-          value={nameLastname}
-          onChange={(e) => setNameLastname(e.target.value)}
-        />
-
-        <TextField
-          name="Contact-Number"
-          label="Contact-Number"
-          variant="outlined"
-          value={tel}
-          onChange={(e) => setTel(e.target.value)}
-        />
-
+      <div className="w-full max-w-md space-y-6 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
         <FormControl fullWidth>
-          <InputLabel>Venue</InputLabel>
+          <InputLabel id="venue-select-label">Select Venue</InputLabel>
           <Select
+            labelId="venue-select-label"
             id="venue"
-            name="venue"
-            value={venue}
-            label="Venue"
-            onChange={(e) => setVenue(e.target.value)}
+            value={selectedVenueId}
+            label="Select Venue"
+            onChange={(e) => setSelectedVenueId(e.target.value)}
           >
-            <MenuItem value="Bloom">The Bloom Pavilion</MenuItem>
-            <MenuItem value="Spark">Spark Space</MenuItem>
-            <MenuItem value="GrandTable">The Grand Table</MenuItem>
+            {/* ต้องใช้ ObjectId ของ Database จริงๆ เป็น Value เพื่อส่งไป Backend */}
+            <MenuItem value="65d123456789abcd00000001">The Bloom Pavilion</MenuItem>
+            <MenuItem value="65d123456789abcd00000002">Spark Space</MenuItem>
+            <MenuItem value="65d123456789abcd00000003">The Grand Table</MenuItem>
           </Select>
         </FormControl>
 
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <DatePicker
-            label="Book Date"
-            value={bookDate}
-            onChange={(newValue) => setBookDate(newValue)}
-          />
-        </LocalizationProvider>
-
-        <Button
-          name="Book Venue"
-          variant="contained"
-          onClick={handleBookVenue}
-          sx={{ mt: 2 }}
-        >
-          Book Venue
-        </Button>
+        {/* เรียกใช้ BookingForm เมื่อมีการเลือก Venue แล้วเท่านั้น */}
+        {selectedVenueId ? (
+          <div className="mt-4 border-t pt-4">
+            <BookingForm restaurantId={selectedVenueId} />
+          </div>
+        ) : (
+          <div className="text-center text-gray-500 mt-4">
+            Please select a venue to proceed with booking.
+          </div>
+        )}
       </div>
     </main>
   );
